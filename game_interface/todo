@@ -1,0 +1,15 @@
+seperate the asset generation part from text generation.
+
+
+bot to generate and test the universe - app created
+
+
+admin interface to create universe, create quest, edit asset and questions
+audio for quest/questions
+quest reward
+leaderboard - ui done
+fix number of collectible to a quest
+
+
+cost:
+cost of generating an universe
