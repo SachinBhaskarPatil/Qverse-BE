@@ -1,0 +1,132 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    #loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+    }
+    .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 50px;
+        height: 50px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='generator' %}">Generator</a>
+&rsaquo; <a href="{% url 'admin:generator_universe_changelist' %}">Universes</a>
+&rsaquo; {{ universe.universe_name }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Universe Details: {{ universe.universe_name }}</h1>
+    {% if universe.thumbnail %}
+    <div class="module">
+        <h2>Thumbnail</h2>
+        <img width="256" height="256" src="{{ universe.thumbnail }}" alt="{{ universe.universe_name }} thumbnail">
+    </div>
+    {% endif %}
+    <div class="module">
+        <h2>Description</h2>
+        <p>{{ universe.description }}</p>
+    </div>
+    <div class="module">
+        <h2>Characters ({{characters | length}})</h2>
+        <ul>
+        {% for character in characters %}
+            <li>
+                <h3><strong>{{ character.name }}</strong> </h3><br>
+                {% if character.image %}
+                <img width="256" height="256" src="{{ character.image }}" alt="{{ character.name }} image" style="width: 100px; height: 100px; object-fit: cover; cursor: zoom-in;" onclick="window.open('{{ character.image }}', '_blank')"><br>
+            {% endif %}
+                ({{ character.role }}): {{ character.description }}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div class="module">
+        <h2>Quests</h2>
+        <ul>
+        {% for quest in universe.quests.all %}
+            <li><a href="{% url 'admin:generator_quest_change' quest.id %}">{{ quest.quest_name }}</a></li>
+        {% empty %}
+            <li>No quests available for this universe.</li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div class="submit-row">
+        {% if not all_assets_generated %}
+            <button id="generate-assets-btn" class="button default" style="float: left;">Generate Assets</button>
+        {% endif %}
+        <a href="{{ add_quest_url }}" class="button" style="float: left;">Add Quest</a>
+    </div>
+</div>
+
+<div id="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p style="text-align: center; color: white; margin-top: 60px;">Generating assets...</p>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const generateAssetsBtn = document.getElementById('generate-assets-btn');
+    const loadingOverlay = document.getElementById('loading-overlay');
+
+    if (generateAssetsBtn) {
+        generateAssetsBtn.addEventListener('click', function() {
+            loadingOverlay.style.display = 'block';
+            const eventSource = new EventSource("{{ generate_assets_url }}");
+
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                if (data.status === 'completed') {
+                    eventSource.close();
+                    loadingOverlay.style.display = 'none';
+                    location.reload();
+                } else if (data.status === 'error') {
+                    eventSource.close();
+                    loadingOverlay.style.display = 'none';
+                    alert('Error generating assets: ' + data.message);
+                } else {
+                    // Update the UI with the current status
+                    document.querySelector('#loading-overlay p').textContent = data.status;
+                }
+            };
+
+            eventSource.onerror = function() {
+                eventSource.close();
+                loadingOverlay.style.display = 'none';
+                alert('Error connecting to server');
+            };
+        });
+    }
+});
+</script>
+{% endblock %}

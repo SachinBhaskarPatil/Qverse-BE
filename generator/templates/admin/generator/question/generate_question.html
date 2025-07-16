@@ -1,0 +1,28 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Generate New Question</h1>
+    <form method="post">
+        {% csrf_token %}
+        <fieldset class="module aligned">
+            <div class="form-row">
+                <label for="quest">Quest:</label>
+                <select name="quest" id="quest" required>
+                    {% for quest in quests %}
+                    <option value="{{ quest.id }}">{{ quest.quest_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="num_options">Number of Options:</label>
+                <input type="number" name="num_options" id="num_options" value="2" min="2" max="5" required>
+            </div>
+        </fieldset>
+        <div class="submit-row">
+            <input type="submit" value="Generate Question" class="default" name="_save">
+        </div>
+    </form>
+</div>
+{% endblock %}

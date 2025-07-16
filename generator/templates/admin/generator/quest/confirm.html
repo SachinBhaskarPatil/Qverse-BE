@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:generator_universe_changelist' %}">Universes</a>
+&rsaquo; <a href="{% url 'admin:generator_universe_details' universe.id %}">{{ universe.universe_name }}</a>
+&rsaquo; Confirm Quest Generation
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Confirm Quest Generation</h1>
+    <p>You are about to generate a new quest with the following details:</p>
+    <ul>
+        <li><strong>Universe:</strong> {{ universe.universe_name }}</li>
+        <li><strong>Quest Prompt:</strong> {{ quest_prompt }}</li>
+        <li><strong>Max Questions:</strong> {{ max_questions }}</li>
+    </ul>
+    <form method="post" action="{% url 'admin:generator_universe_confirm_quest' universe.id %}">
+        {% csrf_token %}
+        <div class="submit-row">
+            <input type="submit" value="Confirm and Generate" class="default" name="_save">
+            <a href="{% url 'admin:generator_universe_add_quest' universe.id %}" class="button">Modify Quest Details</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

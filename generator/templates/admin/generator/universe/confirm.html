@@ -1,0 +1,26 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label='generator' %}">Generator</a>
+&rsaquo; <a href="{% url 'admin:generator_universe_changelist' %}">Universes</a>
+&rsaquo; Confirm Universe Generation
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Confirm Universe Generation</h1>
+    <p>The following prompt will be sent to Claude:</p>
+    <pre>{{ prompt }}</pre>
+    <form method="post" action="{% url 'admin:generator_universe_confirm' %}">
+        {% csrf_token %}
+        <div class="submit-row">
+            <input type="submit" value="Confirm and Generate" class="default" name="_save">
+            <a href="{% url 'admin:generator_universe_add' %}" class="button">Modify Prompt</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

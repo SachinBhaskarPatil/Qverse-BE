@@ -1,0 +1,37 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static " admin/css/forms.css" %}">{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:generator_universe_changelist' %}">Universes</a>
+    &rsaquo; <a href="{% url 'admin:generator_universe_details' universe.id %}">{{ universe.universe_name }}</a>
+    &rsaquo; {% trans 'Add Quest' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <form method="post" id="quest_form">
+        {% csrf_token %}
+        <fieldset class="module aligned">
+            <div class="form-row">
+                <label for="quest_prompt">Quest Prompt:</label>
+                <textarea name="quest_prompt" id="quest_prompt" rows="4" cols="80" required></textarea>
+                <p class="help">Enter a detailed description or prompt for the quest you want to generate.</p>
+            </div>
+            <div class="form-row">
+                <label for="max_questions">Max Questions:</label>
+                <input type="number" name="max_questions" id="max_questions" value="9" min="1" max="20" required>
+                <p class="help">Enter the maximum number of questions for this quest (1-20).</p>
+            </div>
+        </fieldset>
+        <div class="submit-row">
+            <input type="submit" value="{% trans 'Generate Quest' %}" class="default" name="_save">
+        </div>
+    </form>
+</div>
+{% endblock %}
